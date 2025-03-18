@@ -11,7 +11,6 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class JWTAuthController extends Controller
 {
-    // User registration
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -35,7 +34,6 @@ class JWTAuthController extends Controller
         return response()->json(compact('user','token'), 201);
     }
 
-    // User login
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -44,11 +42,7 @@ class JWTAuthController extends Controller
             if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
-
-            // Get the authenticated user.
             $user = auth()->user();
-
-            // (optional) Attach the role to the token.
             $token = JWTAuth::claims(['role' => $user->role])->fromUser($user);
 
             return response()->json(compact('token'));
@@ -57,7 +51,6 @@ class JWTAuthController extends Controller
         }
     }
 
-    // Get authenticated user
     public function getUser()
     {
         try {
@@ -71,7 +64,6 @@ class JWTAuthController extends Controller
         return response()->json(compact('user'));
     }
 
-    // User logout
     public function logout()
     {
         JWTAuth::invalidate(JWTAuth::getToken());
