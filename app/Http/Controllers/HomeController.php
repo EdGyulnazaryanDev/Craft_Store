@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Interfaces\ProductServiceInterface;
+use App\Models\Product;
+use App\Services\ProductService;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -23,6 +26,7 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
+        $products = Product::active()->get();
+        return view('home', compact('products'));
     }
 }

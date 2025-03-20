@@ -14,23 +14,19 @@
         }
 
     </style>
-    <div class="container">
-        <h1 class="text-center my-4">Product List</h1>
-        @can('product-create')
-            <a href="{{ route('products.create') }}" class="btn btn-primary mb-4">Create New Product</a>
-        @endcan
-
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="container" >
+        <h1 class="text-center my-4">Wishlist Products</h1>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="wishlist-container">
             @foreach ($products as $product)
                 <div class="col">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm" id="{{ $product->id }}">
                         <div class="position-relative">
                             @if ($product->image)
                                 <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="card-img-top img-fluid" style="height: 200px; object-fit: cover;">
                             @else
                                 <div class="text-center py-5 bg-light">No Image</div>
                             @endif
-                            <button class="wishlist-btn position-absolute top-0 end-0 m-1 btn" data-product-id="{{ $product->id }}">
+                            <button class="wishlist-btn position-absolute top-0 end-0 m-1 btn" data-product-id="{{ $product->id }}" data-product-slug="{{ $product->slug }}">
                                 <i class="wishlist-icon fa {{ array_key_exists($product->id, auth()->user()->wishlist->pluck('user_id', 'product_id')->toArray()) ? 'clicked text-danger fa-heart' : 'text-secondary fa-heart-o' }}"></i>
                             </button>
                         </div>
@@ -91,7 +87,9 @@
 
             $('.wishlist-btn').on('click', function() {
                 var productId = $(this).data('product-id');
+                var productSlug = $(this).data('product-slug');
                 var icon = $(this).find('.wishlist-icon');
+                var productCard = $(this).closest('.col');
 
                 $.ajax({
                     url: '/products/wishlist/toggle/' + productId,
@@ -104,6 +102,9 @@
                             icon.removeClass('fa-heart-o text-secondary').addClass('fa-heart text-danger clicked');
                         } else {
                             icon.removeClass('fa-heart text-danger clicked').addClass('fa-heart-o text-secondary');
+                            if ($('#wishlist-container').length) {
+                                productCard.fadeOut(300, function() { $(this).remove(); });
+                            }
                         }
                         updateWishlistCount();
 

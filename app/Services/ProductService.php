@@ -24,7 +24,6 @@ use Illuminate\Support\Str;
 
     public function store($data)
     {
-        $data['user_id'] = Auth::user()?->id;
         $data['slug'] =  $this->generateUniqueSlug();
         if ($data['image']) {
             $data['image'] = $this->fileUploadService->upload($data['image'], 'products');
@@ -53,5 +52,26 @@ use Illuminate\Support\Str;
         $randomString = Str::random(6);
         $timestamp = Carbon::now()->timestamp;
         return $randomString . '-' . $timestamp;
+    }
+
+    public function getAllWishlistProducts()
+    {
+        return Product::whereHas('wishlist', function ($q) {
+            $q->where('user_id', auth()->id());
+        })->get();
+    }
+
+    public function toggleWishlist($product)
+    {
+        $user = Auth::user();
+        $wishlist = $user->wishlist()->where('product_id', $product->id)->first();
+
+        if ($wishlist) {
+            $wishlist->delete();
+            return 'removed';
+        } else {
+            $user->wishlist()->create(['product_id' => $product->id]);
+            return 'added';
+        }
     }
 }

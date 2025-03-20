@@ -8,12 +8,16 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Laravel') }}</title>
-
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css"/>
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
     <div id="app">
@@ -32,9 +36,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('products.index') }}">{{ __('Products') }}</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ route('products.create') }}">Create Product</a>
-                        </li>
+                        <li><a class="nav-link" href="{{ route('users.index') }}">Manage Users</a></li>
+                        <li><a class="nav-link" href="{{ route('roles.index') }}">Manage Role</a></li>
+
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -53,6 +57,7 @@
                                 </li>
                             @endif
                         @else
+                            <li><a class="nav-link" href="{{ route('products.wishlist.index') }}">My Wishlist <span id="wishlist-count" class="badge bg-danger">0</span></a></li>
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }}
@@ -80,5 +85,24 @@
             @yield('content')
         </main>
     </div>
+
+    <script>
+        $(document).ready(function() {
+            function updateWishlistCount() {
+                $.ajax({
+                    url: '/users/wishlist',
+                    method: 'GET',
+                    success: function (data) {
+                        $('#wishlist-count').text(data.length);
+                    },
+                    error: function (error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+
+            updateWishlistCount();
+        });
+    </script>
 </body>
 </html>

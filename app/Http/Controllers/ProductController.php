@@ -6,15 +6,21 @@ use AllowDynamicProperties;
 use App\Interfaces\FileUploadServiceInterface;
 use App\Interfaces\ProductServiceInterface;
 use App\Models\Product;
+use App\Models\User;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 
 #[AllowDynamicProperties] class ProductController extends Controller
 {
     public function __construct(ProductServiceInterface $productService)
     {
+        $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','show']]);
+        $this->middleware('permission:product-create', ['only' => ['create','store']]);
+        $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
+        $this->middleware('permission:product-delete', ['only' => ['destroy']]);
         $this->productService = $productService;
     }
 
@@ -88,5 +94,17 @@ use Illuminate\Support\Str;
     {
         $this->productService->destroy($product);
         return redirect()->route('products.index');
+    }
+
+    public function getAllWishlistProducts()
+    {
+        $products = $this->productService->getAllWishlistProducts();
+        return view('product.wishlist', compact('products'));
+    }
+
+    public function toggleWishlist(Product $product)
+    {
+        $status = $this->productService->toggleWishlist($product);
+        return response()->json(['status' => $status]);
     }
 }
